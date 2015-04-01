@@ -11,11 +11,9 @@
    are unnecessary now for any paths leading to the usual suspects
    like BUG(), printk(), panic() etc. [but let's keep them for now for
    older compilers]
-
    Early snapshots of gcc 4.3 don't support this and we can't detect this
    in the preprocessor, but we can live with this because they're unreleased.
    Maketime probing would be overkill here.
-
    gcc also has a __attribute__((__hot__)) to move hot functions into
    a special section, but I don't see any sense in this right now in
    the kernel context */
@@ -53,10 +51,7 @@
  *   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58670
  *
  * Work it around via a compiler barrier quirk suggested by Jakub Jelinek.
-<<<<<<< HEAD
-=======
  * Fixed in GCC 4.8.2 and later versions.
->>>>>>> 06b01f5... linux: add gcc5 header to includes
  *
  * (asm goto is automatically volatile - the naming reflects this.)
  */
@@ -67,8 +62,3 @@
 #define __HAVE_BUILTIN_BSWAP64__
 #define __HAVE_BUILTIN_BSWAP16__
 #endif /* CONFIG_ARCH_USE_BUILTIN_BSWAP */
-<<<<<<< HEAD
-
-#define KASAN_ABI_VERSION 4
-=======
->>>>>>> 06b01f5... linux: add gcc5 header to includes
