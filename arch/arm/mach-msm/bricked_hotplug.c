@@ -25,6 +25,11 @@
 #include <linux/device.h>
 #ifdef CONFIG_STATE_NOTIFIER
 #include <linux/state_notifier.h>
+<<<<<<< HEAD
+=======
+#else
+#include <linux/fb.h>
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 #endif
 
 #define DEBUG 0
@@ -50,7 +55,14 @@ enum {
 
 static struct notifier_block notif;
 static struct delayed_work hotplug_work;
+<<<<<<< HEAD
 static struct workqueue_struct *hotplug_wq;
+=======
+static struct delayed_work suspend_work;
+static struct work_struct resume_work;
+static struct workqueue_struct *hotplug_wq;
+static struct workqueue_struct *susp_wq;
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 
 static struct cpu_hotplug {
 	unsigned int startdelay;
@@ -82,7 +94,11 @@ static struct cpu_hotplug {
 	.bricked_enabled = HOTPLUG_ENABLED,
 };
 
+<<<<<<< HEAD
 static unsigned int NwNs_Threshold[8] = {12, 0, 25, 7, 30, 10, 0, 18};
+=======
+static unsigned int NwNs_Threshold[8] = {12, 0, 20, 7, 25, 10, 0, 18};
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 static unsigned int TwTs_Threshold[8] = {140, 0, 140, 190, 140, 190, 0, 190};
 
 struct down_lock {
@@ -247,7 +263,11 @@ out:
 	return;
 }
 
+<<<<<<< HEAD
 static void bricked_hotplug_suspend(void)
+=======
+static void bricked_hotplug_suspend(struct work_struct *work)
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 {
 	int cpu;
 
@@ -276,7 +296,11 @@ static void bricked_hotplug_suspend(void)
 			cpu_online(0), cpu_online(1), cpu_online(2), cpu_online(3));
 }
 
+<<<<<<< HEAD
 static void __ref bricked_hotplug_resume(void)
+=======
+static void __ref bricked_hotplug_resume(struct work_struct *work)
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 {
 	int cpu, required_reschedule = 0, required_wakeup = 0;
 
@@ -294,7 +318,11 @@ static void __ref bricked_hotplug_resume(void)
 		}
 	}
 
+<<<<<<< HEAD
 	if (required_wakeup) {
+=======
+	if (wakeup_boost || required_wakeup) {
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 		/* Fire up all CPUs */
 		for_each_cpu_not(cpu, cpu_online_mask) {
 			if (cpu == 0)
@@ -312,10 +340,34 @@ static void __ref bricked_hotplug_resume(void)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void __bricked_hotplug_resume(void)
+{
+	if (!hotplug.bricked_enabled)
+		return;
+
+	flush_workqueue(susp_wq);
+	cancel_delayed_work_sync(&suspend_work);
+	queue_work_on(0, susp_wq, &resume_work);
+}
+
+static void __bricked_hotplug_suspend(void)
+{
+	if (!hotplug.bricked_enabled || hotplug.suspended)
+		return;
+
+	INIT_DELAYED_WORK(&suspend_work, bricked_hotplug_suspend);
+	queue_delayed_work_on(0, susp_wq, &suspend_work, 
+		msecs_to_jiffies(hotplug.suspend_defer_time * 1000)); 
+}
+
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 #ifdef CONFIG_STATE_NOTIFIER
 static int state_notifier_callback(struct notifier_block *this,
 				unsigned long event, void *data)
 {
+<<<<<<< HEAD
 	if (!hotplug.bricked_enabled)
 		return NOTIFY_OK;
 
@@ -325,6 +377,14 @@ static int state_notifier_callback(struct notifier_block *this,
 			break;
 		case STATE_NOTIFIER_SUSPEND:
 			bricked_hotplug_suspend();
+=======
+	switch (event) {
+		case STATE_NOTIFIER_ACTIVE:
+			__bricked_hotplug_resume();
+			break;
+		case STATE_NOTIFIER_SUSPEND:
+			__bricked_hotplug_suspend();
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 			break;
 		default:
 			break;
@@ -332,6 +392,38 @@ static int state_notifier_callback(struct notifier_block *this,
 
 	return NOTIFY_OK;
 }
+<<<<<<< HEAD
+=======
+#else
+static int prev_fb = FB_BLANK_UNBLANK;
+
+static int fb_notifier_callback(struct notifier_block *self,
+				unsigned long event, void *data)
+{
+	struct fb_event *evdata = data;
+	int *blank;
+
+	if (evdata && evdata->data && event == FB_EVENT_BLANK) {
+		blank = evdata->data;
+		switch (*blank) {
+			case FB_BLANK_UNBLANK:
+				if (prev_fb == FB_BLANK_POWERDOWN) {
+					__bricked_hotplug_resume();
+					prev_fb = FB_BLANK_UNBLANK;
+				}
+				break;
+			case FB_BLANK_POWERDOWN:
+				if (prev_fb == FB_BLANK_UNBLANK) {
+					__bricked_hotplug_suspend();
+					prev_fb = FB_BLANK_POWERDOWN;
+				}
+				break;
+		}
+	}
+
+	return NOTIFY_OK;
+}
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 #endif
 
 static int bricked_hotplug_start(void)
@@ -345,12 +437,35 @@ static int bricked_hotplug_start(void)
 		goto err_out;
 	}
 
+<<<<<<< HEAD
+=======
+	susp_wq =
+	    alloc_workqueue("susp_wq", WQ_FREEZABLE, 0);
+	if (!susp_wq) {
+		pr_err("%s: Failed to allocate suspend workqueue\n",
+		       MPDEC_TAG);
+		ret = -ENOMEM;
+		goto err_dev;
+	}
+
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 #ifdef CONFIG_STATE_NOTIFIER
 	notif.notifier_call = state_notifier_callback;
 	if (state_register_client(&notif)) {
 		pr_err("%s: Failed to register State notifier callback\n",
 			MPDEC_TAG);
+<<<<<<< HEAD
 		goto err_dev;
+=======
+		goto err_susp;
+	}
+#else
+	notif.notifier_call = fb_notifier_callback;
+	if (fb_register_client(&notif)) {
+		pr_err("%s: Failed to register FB notifier callback\n",
+			MPDEC_TAG);
+		goto err_susp;
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 	}
 #endif
 
@@ -358,6 +473,11 @@ static int bricked_hotplug_start(void)
 	mutex_init(&hotplug.bricked_hotplug_mutex);
 
 	INIT_DELAYED_WORK(&hotplug_work, bricked_hotplug_work);
+<<<<<<< HEAD
+=======
+	INIT_DELAYED_WORK(&suspend_work, bricked_hotplug_suspend);
+	INIT_WORK(&resume_work, bricked_hotplug_resume);
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 
 	for_each_possible_cpu(cpu) {
 		dl = &per_cpu(lock_info, cpu);
@@ -369,6 +489,11 @@ static int bricked_hotplug_start(void)
 					msecs_to_jiffies(hotplug.startdelay));
 
 	return ret;
+<<<<<<< HEAD
+=======
+err_susp:
+	destroy_workqueue(susp_wq);
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 err_dev:
 	destroy_workqueue(hotplug_wq);
 err_out:
@@ -386,13 +511,27 @@ static void bricked_hotplug_stop(void)
 		cancel_delayed_work_sync(&dl->lock_rem);
 	}
 
+<<<<<<< HEAD
+=======
+	flush_workqueue(susp_wq);
+	cancel_work_sync(&resume_work);
+	cancel_delayed_work_sync(&suspend_work);
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 	cancel_delayed_work_sync(&hotplug_work);
 	mutex_destroy(&hotplug.bricked_hotplug_mutex);
 	mutex_destroy(&hotplug.bricked_cpu_mutex);
 #ifdef CONFIG_STATE_NOTIFIER
 	state_unregister_client(&notif);
+<<<<<<< HEAD
 #endif
 	notif.notifier_call = NULL;
+=======
+#else
+	fb_unregister_client(&notif);
+#endif
+	notif.notifier_call = NULL;
+	destroy_workqueue(susp_wq);
+>>>>>>> f09cdf459f7... msm: bricked: add Bricked Hotplug driver
 	destroy_workqueue(hotplug_wq);
 
 	/* Put all sibling cores to sleep */
