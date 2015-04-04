@@ -3082,15 +3082,23 @@ config ALUCARD_HOTPLUG
 	bool "Enable alucard-hotplug cpu hotplug driver"
 	default y
 	help
-	 Generic Alucard-hotplug cpu hotplug driver for ARM SOCs
+	  Generic Alucard-hotplug cpu hotplug driver for ARM SOCs
 
 config MSM_HOTPLUG
 	bool "MSM hotplug driver"
 	depends on HOTPLUG_CPU
 	default y
 	help
-	 The MSM hotplug driver controls on-/offlining of additional cores based
-	 on current cpu load.
+	  The MSM hotplug driver controls on-/offlining of additional cores based
+	  on current cpu load.
+
+config BRICKED_HOTPLUG
+	bool "Enable kernel based mpdecision"
+	depends on MSM_RUN_QUEUE_STATS
+	default y
+	help
+	  This enables kernel based multi core control.
+	  (up/down hotplug based on load)
 
 config KRAIT_REGULATOR
 	bool "Support Kraits powered via ganged regulators in the pmic"
