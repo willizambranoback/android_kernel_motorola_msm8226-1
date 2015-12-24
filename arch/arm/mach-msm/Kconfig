@@ -3079,10 +3079,18 @@ config WALL_CLK_SYSFS
 	 wall clock simulation and read the current SFN.
 
 config ALUCARD_HOTPLUG
-			bool "Enable alucard-hotplug cpu hotplug driver"
-			default y
-			help
-			  Generic Alucard-hotplug cpu hotplug driver for ARM SOCs
+	bool "Enable alucard-hotplug cpu hotplug driver"
+	default y
+	help
+	 Generic Alucard-hotplug cpu hotplug driver for ARM SOCs
+
+config MSM_HOTPLUG
+	bool "MSM hotplug driver"
+	depends on HOTPLUG_CPU
+	default y
+	help
+	 The MSM hotplug driver controls on-/offlining of additional cores based
+	 on current cpu load.
 
 config KRAIT_REGULATOR
 	bool "Support Kraits powered via ganged regulators in the pmic"
