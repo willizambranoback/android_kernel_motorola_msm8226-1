@@ -1,5 +1,5 @@
 #ifndef __LINUX_COMPILER_H
-#error "Please don't include <linux/compiler-gcc6.h> directly, include <linux/compiler.h> instead."
+#error "Please don't include <linux/compiler-gcc7.h> directly, include <linux/compiler.h> instead."
 #endif
 
 #define __used				__attribute__((__used__))
@@ -11,17 +11,11 @@
    are unnecessary now for any paths leading to the usual suspects
    like BUG(), printk(), panic() etc. [but let's keep them for now for
    older compilers]
-<<<<<<< HEAD
-   Early snapshots of gcc 4.3 don't support this and we can't detect this
-   in the preprocessor, but we can live with this because they're unreleased.
-   Maketime probing would be overkill here.
-=======
 
    Early snapshots of gcc 4.3 don't support this and we can't detect this
    in the preprocessor, but we can live with this because they're unreleased.
    Maketime probing would be overkill here.
 
->>>>>>> 504c6c8... ThugLife: add headers for gcc 6 and 7
    gcc also has a __attribute__((__hot__)) to move hot functions into
    a special section, but I don't see any sense in this right now in
    the kernel context */
@@ -59,10 +53,7 @@
  *   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58670
  *
  * Work it around via a compiler barrier quirk suggested by Jakub Jelinek.
-<<<<<<< HEAD
-=======
  * Fixed in GCC 4.8.2 and later versions.
->>>>>>> 504c6c8... ThugLife: add headers for gcc 6 and 7
  *
  * (asm goto is automatically volatile - the naming reflects this.)
  */
