@@ -276,6 +276,13 @@ boostpulse_duration: Length of time to hold CPU speed at hispeed_freq
 on a write to boostpulse, before allowing speed to drop according to
 load as usual.  Default is 80000 uS.
 
+2.7 InteractiveNOPH
+---------------
+
+The same as Interactive except that CM PowerHAL doesn't mess with it.
+
+
+
 
 3. The Governor Interface in the CPUfreq Core
 =============================================
