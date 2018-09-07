@@ -3106,7 +3106,6 @@ config FORCE_FAST_CHARGE
 	help
 		A simple sysfs interface to force adapters that
 		are detected as USB to charge as AC.
-endif
 
 config KRAIT_REGULATOR
 	bool "Support Kraits powered via ganged regulators in the pmic"
