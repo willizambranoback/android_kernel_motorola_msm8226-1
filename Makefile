@@ -1,7 +1,7 @@
 VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 113
-EXTRAVERSION = ZER0
+EXTRAVERSION =
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -163,6 +163,7 @@ VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 
 export srctree objtree VPATH
 
+CCACHE := $(shell which ccache)
 
 # SUBARCH tells the usermode build what the underlying arch is.  That is set
 # first, and if a usermode build is happening, the "ARCH=um" on the command
@@ -294,7 +295,7 @@ export KBUILD_CHECKSRC KBUILD_SRC KBUILD_EXTMOD
 #         cmd_cc_o_c       = $(CC) $(c_flags) -c -o $@ $<
 #
 # If $(quiet) is empty, the whole command will be printed.
-# If it is set to "quiet_", only the short version will be printed.
+# If it is set to "quiet_", only the short version will be printed. 
 # If it is set to "silent_", nothing will be printed at all, since
 # the variable $(silent_cmd_cc_o_c) doesn't exist.
 #
@@ -352,14 +353,11 @@ CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-OPTIMIZATION_FLAGS = -mtune=cortex-a7 -mfpu=neon \
-                     -ffast-math -fsingle-precision-constant \
-                     -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr
-CFLAGS_MODULE   = $(OPTIMIZATION_FLAGS)
-AFLAGS_MODULE   = $(OPTIMIZATION_FLAGS)
+CFLAGS_MODULE   =
+AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
-CFLAGS_KERNEL	= $(OPTIMIZATION_FLAGS)
-AFLAGS_KERNEL	= $(OPTIMIZATION_FLAGS)
+CFLAGS_KERNEL	=
+AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -374,9 +372,11 @@ KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
-		   -Wno-implicit-function-declaration \
+		   -Werror-implicit-function-declaration \
 		   -Wno-format-security -Wno-sizeof-pointer-memaccess \
-		   -fno-delete-null-pointer-checks -Werror -std=gnu89 -fno-pic
+		   -fno-delete-null-pointer-checks \
+		   -std=gnu89
+
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__
@@ -572,6 +572,9 @@ else
 KBUILD_CFLAGS	+= -O2
 endif
 
+# Needed to unbreak GCC 7.x and above
+KBUILD_CFLAGS   += $(call cc-option,-fno-store-merging,)
+
 include $(srctree)/arch/$(SRCARCH)/Makefile
 
 ifneq ($(CONFIG_FRAME_WARN),0)
@@ -627,15 +630,15 @@ ifdef CONFIG_DEBUG_INFO_REDUCED
 KBUILD_CFLAGS 	+= $(call cc-option, -femit-struct-debug-baseonly)
 endif
 
-ifdef CONFIG_FUNCTION_TRACER
-KBUILD_CFLAGS	+= -pg
-ifdef CONFIG_DYNAMIC_FTRACE
-	ifdef CONFIG_HAVE_C_RECORDMCOUNT
-		BUILD_C_RECORDMCOUNT := y
-		export BUILD_C_RECORDMCOUNT
-	endif
-endif
-endif
+#ifdef CONFIG_FUNCTION_TRACER
+#KBUILD_CFLAGS	+= -pg
+#ifdef CONFIG_DYNAMIC_FTRACE
+#	ifdef CONFIG_HAVE_C_RECORDMCOUNT
+#		BUILD_C_RECORDMCOUNT := y
+#		export BUILD_C_RECORDMCOUNT
+#	endif
+#endif
+#endif
 
 # We trigger additional mismatches with less inlining
 ifdef CONFIG_DEBUG_SECTION_MISMATCH
