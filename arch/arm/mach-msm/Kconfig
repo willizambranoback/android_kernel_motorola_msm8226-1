@@ -3080,7 +3080,7 @@ config WALL_CLK_SYSFS
 
 config ALUCARD_HOTPLUG
 	bool "Enable alucard-hotplug cpu hotplug driver"
-	default y
+	default n
 	help
 	  Generic Alucard-hotplug cpu hotplug driver for ARM SOCs
 
@@ -3095,7 +3095,7 @@ config MSM_HOTPLUG
 config BRICKED_HOTPLUG
 	bool "Enable kernel based mpdecision"
 	depends on MSM_RUN_QUEUE_STATS
-	default y
+	default n
 	help
 	  This enables kernel based multi core control.
 	  (up/down hotplug based on load)
